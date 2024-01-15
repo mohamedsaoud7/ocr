@@ -22,7 +22,9 @@ liste_de_regions =["تونس","اريانة","سوسة","بن عروس","قبل�
 
 
 '''**************************************************************************************'''
-st.title("Extraction de données depuis un PDF avec Streamlit")
+selected_domain = st.selectbox("Select the domain for data extraction:", ['التسويق', 'تؤمين'])
+
+st.title("Extraction de données depuis un PDF")
 pdf_path = st.file_uploader("Sélectionnez un fichier PDF", type="pdf")
 print(pdf_path)
 
@@ -40,28 +42,66 @@ if pdf_path is not None:
 
     
 
-    pattern0 = re.compile(r'\b[01]\d{7}\b')
-    cin= pattern0.findall(pdf_text)
-    pattern1 = re.compile(r'\b[2579]\d{7}\b')
-    num_tel=pattern1.findall(pdf_text)
+    cin_pattern = re.compile(r'\b[01]\d{7}\b')
+    cin= cin_pattern.findall(pdf_text)
+    num_tel_pattern = re.compile(r'\b[2579]\d{7}\b')
+    num_tel=num_tel_pattern.findall(pdf_text)
+    nouns_pattern = re.compile("|".join(map(re.escape, liste_de_noms)), re.IGNORECASE)
+    nouns= nouns_pattern.findall(pdf_text)
+    region_pattern = re.compile("|".join(map(re.escape, liste_de_regions)), re.IGNORECASE)
+    regions= region_pattern.findall(pdf_text)
+    age_pattern = re.compile(r'\b(\d{1,2})\s*سنة\b', re.IGNORECASE)
+    ages = age_pattern.findall(pdf_text)
 
-    patter2 = re.compile("|".join(map(re.escape, liste_de_noms)), re.IGNORECASE)
-    nouns= patter2.findall(pdf_text)
-    patter3 = re.compile("|".join(map(re.escape, liste_de_regions)), re.IGNORECASE)
-    regions= patter3.findall(pdf_text)
-
-    st.subheader("رقم بطاقة التعريف")
-    st.write(cin)
+    claim_number_pattern = r"رقم المطالبة: (\d+)"
+    matchedClaim_number = re.search(claim_number_pattern, pdf_text)
+    claim_number = ""
+    if matchedClaim_number:
+        claim_number = matchedClaim_number.group(1)
+    claim_date_pattern = r"تاريخ المطالبة: (\d{2}/\d{2}/\d{4})"
+    claim_date = ""
+    matchedClaim_date = re.search(claim_date_pattern, pdf_text)
+    if matchedClaim_date:
+        claim_date = matchedClaim_date.group(1)
+    claim_type_pattern = r"نوع المطالبة: (.+)"
+    claim_type = ""
+    matchedClaim_type = re.search(claim_type_pattern, pdf_text)
+    if matchedClaim_type:
+        claim_type = matchedClaim_type.group(1)
+    claim_amount_pattern = r"قيمة المطالبة: (\d+(\.\d+)?)"
+    claim_amount = ""
+    matchedClaim_amount = re.search(claim_amount_pattern, pdf_text)
+    if matchedClaim_amount:
+        claim_amount = matchedClaim_amount.group(1)
     
-    st.subheader("الاسماء")
-    st.write(nouns)
+    if selected_domain == 'التسويق':
+        st.subheader("رقم بطاقة التعريف")
+        st.write(cin)
+        
+        st.subheader("الاسماء")
+        st.write(nouns)
 
-    st.subheader("الاماكن")
-    st.write(regions)
+        st.subheader("الاماكن")
+        st.write(regions)
 
-    st.subheader("رقم الهاتف")
-    st.write(num_tel)
+        st.subheader("رقم الهاتف")
+        st.write(num_tel)
 
+        st.subheader("الأعمار")
+        st.write(ages)
+
+    elif selected_domain == 'تؤمين':
+        st.subheader("رقم المطالبة")
+        st.write(claim_number)
+
+        st.subheader("تاريخ المطالبة")
+        st.write(claim_date)
+
+        st.subheader("نوع المطالبة")
+        st.write(claim_type)
+
+        st.subheader("قيمة المطالبة")
+        st.write(claim_amount)
 
 
 
