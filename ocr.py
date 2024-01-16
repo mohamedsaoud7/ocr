@@ -25,7 +25,7 @@ liste_de_regions =["تونس","اريانة","سوسة","بن عروس","قبل�
 st.title("Extraction de données depuis un PDF avec Streamlit")
 pdf_path = st.file_uploader("Sélectionnez un fichier PDF", type="pdf")
 print(pdf_path)
-
+selected_fields = st.multiselect("Sélectionnez les champs à extraire", ["رقم بطاقة التعريف", "الاسماء", "الاماكن", "رقم الهاتف"])
 if pdf_path is not None:
 
     # Extraction du texte du PDF
@@ -37,31 +37,32 @@ if pdf_path is not None:
     # Affichage du texte extrait
     st.subheader("Texte extrait du PDF:")
     st.text(pdf_text)
-
+    extracted_data = {}
     
 
-    pattern0 = re.compile(r'\b[01]\d{7}\b')
-    cin= pattern0.findall(pdf_text)
-    pattern1 = re.compile(r'\b[2579]\d{7}\b')
-    num_tel=pattern1.findall(pdf_text)
+    if "رقم بطاقة التعريف" in selected_fields:
+        pattern0 = re.compile(r'\b[01]\d{7}\b')
+        cin = pattern0.findall(pdf_text)
+        extracted_data["رقم بطاقة التعريف"] = cin
 
-    patter2 = re.compile("|".join(map(re.escape, liste_de_noms)), re.IGNORECASE)
-    nouns= patter2.findall(pdf_text)
-    patter3 = re.compile("|".join(map(re.escape, liste_de_regions)), re.IGNORECASE)
-    regions= patter3.findall(pdf_text)
+    if "الاسماء" in selected_fields:
+        patter2 = re.compile("|".join(map(re.escape, liste_de_noms)), re.IGNORECASE)
+        nouns = patter2.findall(pdf_text)
+        extracted_data["الاسماء"] = nouns
 
-    st.subheader("رقم بطاقة التعريف")
-    st.write(cin)
-    
-    st.subheader("الاسماء")
-    st.write(nouns)
+    if "الاماكن" in selected_fields:
+        patter3 = re.compile("|".join(map(re.escape, liste_de_regions)), re.IGNORECASE)
+        regions = patter3.findall(pdf_text)
+        extracted_data["الاماكن"] = regions
 
-    st.subheader("الاماكن")
-    st.write(regions)
+    if "رقم الهاتف" in selected_fields:
+        pattern1 = re.compile(r'\b[2579]\d{7}\b')
+        num_tel = pattern1.findall(pdf_text)
+        extracted_data["رقم الهاتف"] = num_tel
 
-    st.subheader("رقم الهاتف")
-    st.write(num_tel)
-
+    for field, data in extracted_data.items():
+            st.subheader(field)
+            st.write(data)
 
 
 
