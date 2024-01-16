@@ -15,6 +15,10 @@ To use this code, follow the steps below to set up the environment:
 git clone https://github.com/mohamedsaoud7/ocr.git
 cd ocr
 ```
+### choose what version you want to choose(main(the fields that are gonna get extracted are in groups based on the selected domain) or secondVersion(here you can fine grained control on the fields that you want to extract)) so for example to use the secondVersion:
+```bash
+git checkout secondVersion
+```
 ### Install the virtual environment
 
 ```bash
@@ -35,7 +39,10 @@ On macOS and Linux:
 source .venv/inventoryMatcher/bin/activate
 ```
 On Windows:
+```bash
 .venv/inventoryMatcher\Scripts\activate
+```
+
 
 ### Install dependencies
 Once the virtual environment is activated, use the following command to install the required dependencies:
